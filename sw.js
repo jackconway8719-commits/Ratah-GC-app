@@ -4,7 +4,7 @@ const CACHE_NAME = "compte-cache-v1";
 // Fichiers à mettre en cache
 const urlsToCache = [
   "/",
-  "/Ratah.html",
+  "/index.html",
   "/Ratah.css",
   "/Ratah.js",
   "/Ratah.json",

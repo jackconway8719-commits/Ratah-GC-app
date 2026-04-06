@@ -1,7 +1,7 @@
 {
   "name": "Gestion de Compte Journalier",
   "short_name": "Compte",
-  "start_url": "Ratah.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f6f9",
   "theme_color": "#4CAF50",
