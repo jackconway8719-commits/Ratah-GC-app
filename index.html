@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion de Compte Journalier</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .entree {
+      background-color: #d4edda;
+      color: #155724;
+      font-weight: bold;
+    }
+    .sortie {
+      background-color: #f8d7da;
+      color: #721c24;
+      font-weight: bold;
+    }
+    .ca {
+      background-color: #cce5ff;
+      color: #004085;
+      font-weight: bold;
+    }
+    .net {
+      background-color: #fff3cd;
+      color: #856404;
+      font-weight: bold;
+    }
+    .commentaire {
+      text-align: left;
+      font-style: italic;
+      color: #555;
+    }
+    input, textarea {
+      width: 95%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+    #addRowBtn {
+      background-color: #4CAF50;
+    }
+    #addRowBtn:hover {
+      background-color: #45a049;
+    }
+    #removeRowBtn {
+      background-color: #d9534f;
+    }
+    #removeRowBtn:hover {
+      background-color: #c9302c;
+    }
+  </style> 
+  <link rel="manifest" href="Ratah.json">
+
+</head>
+<body>
+  <h1>Gestion de Compte Journalier</h1>
+  <table id="journalTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Entrées (Ar)</th>
+        <th>Remarque Entrée</th>
+        <th>Sorties (Ar)</th>
+        <th>Remarque Sortie</th>
+        <th>Chiffre d’Affaires (Ar)</th>
+        <th>Chiffre d’Affaires Net (Ar)</th>
+        <th>Commentaires / Remarques</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="date" class="date-val"></td>
+        <td class="entree"><input type="number" class="entree-val" placeholder="0"></td>
+        <td><textarea rows="2" placeholder="Remarque entrée..."></textarea></td>
+        <td class="sortie"><input type="number" class="sortie-val" placeholder="0"></td>
+        <td><textarea rows="2" placeholder="Remarque sortie..."></textarea></td>
+        <td class="ca"><input type="number" class="ca-val" placeholder="0" readonly></td>
+        <td class="net"><input type="number" class="net-val" placeholder="0" readonly></td>
+        <td class="commentaire"><textarea rows="2" placeholder="Notes..."></textarea></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="button-container">
+    <button id="addRowBtn">Ajouter une ligne</button>
+    <button id="removeRowBtn">Supprimer la dernière ligne</button>
+  </div>
+
+  <script>
+    // Fonction de calcul automatique pour toutes les lignes
+    function calculerToutesLesLignes() {
+      const rows = document.querySelectorAll('#journalTable tbody tr');
+      let netPrecedent = 0;
+
+      rows.forEach((row) => {
+        const entree = row.querySelector('.entree-val').value;
+        const sortie = row.querySelector('.sortie-val').value;
+        const ca = row.querySelector('.ca-val');
+        const net = row.querySelector('.net-val');
+
+        const entreeNum = parseFloat(entree) || 0;
+        const sortieNum = parseFloat(sortie) || 0;
+
+        // CA brut = Entrées
+        ca.value = entreeNum;
+
+        // CA net = (Entrées - Sorties) + CA net précédent
+        net.value = (entreeNum - sortieNum) + netPrecedent;
+
+        netPrecedent = parseFloat(net.value);
+      });
+    }
+
+    // Fonction pour afficher la date sélectionnée
+    function afficherDate(row) {
+      const dateInput = row.querySelector('.date-val');
+      dateInput.addEventListener('change', () => {
+        if (dateInput.value) {
+          // Affiche la date choisie en texte dans la cellule
+          dateInput.setAttribute('title', dateInput.value);
+        }
+      });
+    }
+
+    // Fonction pour ajouter une nouvelle ligne
+    function ajouterLigne() {
+      const tbody = document.querySelector('#journalTable tbody');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="date" class="date-val"></td>
+        <td class="entree"><input type="number" class="entree-val" placeholder="0"></td>
+        <td><textarea rows="2" placeholder="Remarque entrée..."></textarea></td>
+        <td class="sortie"><input type="number" class="sortie-val" placeholder="0"></td>
+        <td><textarea rows="2" placeholder="Remarque sortie..."></textarea></td>
+        <td class="ca"><input type="number" class="ca-val" placeholder="0" readonly></td>
+        <td class="net"><input type="number" class="net-val" placeholder="0" readonly></td>
+        <td class="commentaire"><textarea rows="2" placeholder="Notes..."></textarea></td>
+      `;
+      tbody.appendChild(newRow);
+
+      // Ajouter les écouteurs pour recalculer et afficher la date
+      newRow.querySelector('.entree-val').addEventListener('input', calculerToutesLesLignes);
+      newRow.querySelector('.sortie-val').addEventListener('input', calculerToutesLesLignes);
+      afficherDate(newRow);
+    }
+
+    // Fonction pour supprimer la dernière ligne
+    function supprimerDerniereLigne() {
+      const tbody = document.querySelector('#journalTable tbody');
+      if (tbody.rows.length > 1) { // garder au moins une ligne
+        tbody.deleteRow(tbody.rows.length - 1);
+        calculerToutesLesLignes();
+      }
+    }
+
+    // Initialisation : écouteurs pour la première ligne
+    const firstRow = document.querySelector('#journalTable tbody tr');
+    firstRow.querySelector('.entree-val').addEventListener('input', calculerToutesLesLignes);
+    firstRow.querySelector('.sortie-val').addEventListener('input', calculerToutesLesLignes);
+    afficherDate(firstRow);
+
+    // Boutons
+    document.getElementById('addRowBtn').addEventListener('click', ajouterLigne);
+    document.getElementById('removeRowBtn').addEventListener('click', supprimerDerniereLigne);
+  </script> 
+  
+  <link rel="stylesheet" href="Ratah.css">
+<script src="Ratah.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+      .then(reg => console.log("Service Worker enregistré :", reg))
+      .catch(err => console.log("Erreur Service Worker :", err));
+  }
+</script>
+
+
+</body>
+</html>
